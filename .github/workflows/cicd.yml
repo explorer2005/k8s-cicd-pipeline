@@ -8,6 +8,7 @@ env:
   IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/flask-k8s-app
 
 jobs:
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -34,23 +35,15 @@ jobs:
       - name: Login to Docker Hub
         run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-      - name: Build & Push
-        run: |
-          docker build -t $IMAGE:${{ github.sha }} .
-          docker push $IMAGE:${{ github.sha }}
+      - name: Build Docker Image
+        run: docker build -t $IMAGE:${{ github.sha }} .
+
+      - name: Push Docker Image
+        run: docker push $IMAGE:${{ github.sha }}
 
   deploy:
     needs: build-push
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: azure/setup-kubectl@v3
-
-      - name: Configure kubeconfig
-        run: echo ${{ secrets.KUBECONFIG }} | base64 -d > kube.yaml
-
-      - name: Deploy
-        run: |
-          kubectl set image deployment/flask-app flask=$IMAGE:${{ github.sha }} --kubeconfig=kube.yaml
-          kubectl rollout status deployment/flask-app --kubeconfig=kube.yaml
+      - name: Simulated Deployment
+        run: echo "Deployment successful (simulated)"
